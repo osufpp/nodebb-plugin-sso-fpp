@@ -52,7 +52,7 @@
                     name: 'ifsta',
                     url: '/auth/ifsta',
                     callbackURL: '/auth/ifsta/callback',
-                    icon: 'fire',
+                    icon: 'check',
                     scope: ''
                 });
             }
