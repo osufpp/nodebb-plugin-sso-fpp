@@ -47,45 +47,12 @@
 				}),
 				opts;
 
-			if (settings['oauth:type'] === '2') {
-				passportOAuth = require('passport-oauth').OAuth2Strategy;
-			} else if (settings['oauth:type'] === '1') {
-				passportOAuth = require('passport-oauth').OAuthStrategy;
+			if (settings['oauth:type'] === '1') {
+				passportOAuth = require('passport-ifsta').Strategy;
 			}
 
 			if (passportOAuth && configOk) {
 				if (settings['oauth:type'] === '1') {
-					// OAuth options
-					opts = {
-						requestTokenURL: settings['oauth:reqTokenUrl'],
-						accessTokenURL: settings['oauth:accessTokenUrl'],
-						userAuthorizationURL: settings['oauth:authUrl'],
-						consumerKey: settings['oauth:key'],
-						consumerSecret: settings['oauth:secret'],
-						callbackURL: nconf.get('url') + '/auth/generic/callback'
-					};
-
-					passportOAuth.Strategy.prototype.userProfile = function(token, secret, params, done) {
-						this._oauth.get(settings['oauth:userProfileUrl'], token, secret, function(err, body, res) {
-							if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
-
-							try {
-								var json = JSON.parse(body);
-
-								var profile = { provider: 'generic' };
-								// Uncomment the following lines to include whatever data is necessary
-								// NodeBB requires the following: id, displayName, emails, e.g.:
-								// profile.id = json.id;
-								// profile.displayName = json.name;
-								// profile.emails = [{ value: json.email }];
-
-								done(null, profile);
-							} catch(e) {
-								done(e);
-							}
-						});
-					};
-				} else if (settings['oauth:type'] === '2') {
 					// OAuth 2 options
 					opts = {
 						authorizationURL: settings['oauth2:authUrl'],
@@ -125,7 +92,7 @@
 					};
 				}
 
-				passport.use('Generic OAuth', new passportOAuth(opts, function(token, secret, profile, done) {
+				passport.use(new passportOAuth(opts, function(token, secret, profile, done) {
 					OAuth.login(profile.id, profile.displayName, profile.emails[0].value, function(err, user) {
 						if (err) {
 							return done(err);

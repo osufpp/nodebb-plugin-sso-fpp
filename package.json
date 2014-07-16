@@ -1,38 +1,38 @@
 {
-    "name": "nodebb-plugin-sso-ifsta",
-    "version": "0.1.2",
-    "description": "NodeBB IFSTA OAuth2 SSO",
-    "main": "library.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta"
-    },
-    "keywords": [
-        "nodebb",
-        "plugin",
-        "oauth",
-        "sso",
-        "single sign on",
-        "registration",
-        "ifsta"
-    ],
-    "author": {
-        "name": "Julian Lam",
-        "email": "julian@nodebb.org"
-    },
-    "contributors": [
-        {
-            "name": "Aaron Bean",
-            "email": "aaron.bean@beardon.com"
-        }
-    ],
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta/issues"
-    },
-    "readme": "",
-    "readmeFilename": "README.md",
-    "dependencies": {
-        "passport-oauth": "~1.0.0"
+  "name": "nodebb-plugin-sso-ifsta",
+  "version": "0.1.2",
+  "description": "NodeBB IFSTA OAuth2 SSO",
+  "main": "library.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "oauth",
+    "sso",
+    "single sign on",
+    "registration",
+    "ifsta"
+  ],
+  "author": {
+    "name": "Julian Lam",
+    "email": "julian@nodebb.org"
+  },
+  "contributors": [
+    {
+      "name": "Aaron Bean",
+      "email": "aaron.bean@beardon.com"
     }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta/issues"
+  },
+  "readme": "",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "passport-ifsta": "git+ssh://git@github.com/beardon/passport-ifsta.git"
+  }
 }
