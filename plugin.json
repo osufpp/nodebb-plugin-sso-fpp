@@ -1,7 +1,7 @@
 {
 	"id": "nodebb-plugin-sso-ifsta",
-	"name": "NodeBB IFSTA OAuth2 SSO",
-	"description": "NodeBB Plugin that allows users to login/register via the IFSTA OAuth2 provider.",
+	"name": "NodeBB IFSTA Account SSO",
+	"description": "NodeBB Plugin that allows users to login/register via their IFSTA Account",
 	"url": "https://github.com/beardon/nodebb-plugin-sso-ifsta",
 	"library": "./library.js",
 	"hooks": [
