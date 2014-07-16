@@ -1,4 +1,4 @@
-<h1><i class="fa fa-key"></i> Generic OAuth Authentication</h1>
+<h1><i class="fa fa-key"></i> IFSTA OAuth2 Authentication</h1>
 <hr />
 
 <form class="sso-oauth-settings">
@@ -9,26 +9,9 @@
 		<br />
 		<select name="oauth:type" title="OAuth Strategy" class="form-control">
 			<option value="x">Disabled</option>
-			<option value="1">OAuth</option>
-			<option value="2">OAuth2</option>
+			<option value="1">OAuth2</option>
 		</select>
 		<hr />
-		<div class="form-group">
-			<input type="text" data-strategy="1" name="oauth:key" title="OAuth Key" class="form-control input-lg" placeholder="OAuth Key">
-		</div>
-		<div class="form-group">
-			<input type="text" data-strategy="1" name="oauth:secret" title="OAuth Secret" class="form-control" placeholder="OAuth Secret">
-		</div>
-		<div class="form-group">
-			<input type="text" data-strategy="1" name="oauth:reqTokenUrl" title="Token Request URL" class="form-control" placeholder="Token Request URL">
-		</div>
-		<div class="form-group">
-			<input type="text" data-strategy="1" name="oauth:accessTokenUrl" title="Access Token URL" class="form-control" placeholder="Access Token URL">
-		</div>
-		<div class="form-group">
-			<input type="text" data-strategy="1" name="oauth:authUrl" title="Authorization URL" class="form-control" placeholder="Authorization URL">
-		</div>
-
 		<div class="form-group">
 			<input type="text" data-strategy="2" name="oauth2:id" title="Client ID" class="form-control input-lg" placeholder="Client ID">
 		</div>
@@ -64,15 +47,11 @@
 
 	var	toggleFields = function(value) {
 		if (value === '1') {
-			$('[data-strategy="2"]').hide();
 			$('[data-strategy="1"]').show();
-		} else if (value === '2') {
-			$('[data-strategy="1"]').hide();
-			$('[data-strategy="2"]').show();
 		} else {
 			$('[data-strategy]').hide();
 		}
-	}
+	};
 
 	toggleFields(false);
 	$('[name="oauth:type"]').on('change', function() {
