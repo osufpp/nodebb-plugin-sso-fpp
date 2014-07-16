@@ -12,10 +12,10 @@
 		passportOAuth;
 
 	var constants = Object.freeze({
-		'name': "Generic OAuth",
+		'name': "IFSTA OAuth2",
 		'admin': {
 			'route': '/plugins/sso-oauth',
-			'icon': 'fa-key'
+			'icon': 'fa-fire'
 		}
 	});
 
