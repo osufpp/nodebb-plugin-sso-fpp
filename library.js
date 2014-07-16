@@ -1,203 +1,147 @@
-(function(module) {
-	"use strict";
+(function (module) {
+    "use strict";
 
-	var User = module.parent.require('./user'),
-		meta = module.parent.require('./meta'),
-		db = module.parent.require('../src/database'),
-		passport = module.parent.require('passport'),
-		fs = module.parent.require('fs'),
-		path = module.parent.require('path'),
-		nconf = module.parent.require('nconf'),
-		winston = module.parent.require('winston'),
-		passportOAuth;
+    var User = module.parent.require('./user'),
+        meta = module.parent.require('./meta'),
+        db = module.parent.require('../src/database'),
+        passport = module.parent.require('passport'),
+        passportIfsta = require('passport-ifsta').Strategy,
+        fs = module.parent.require('fs'),
+        path = module.parent.require('path'),
+        nconf = module.parent.require('nconf');
 
-	var constants = Object.freeze({
-		'name': "IFSTA OAuth2",
-		'admin': {
-			'route': '/plugins/sso-oauth',
-			'icon': 'fa-fire'
-		}
-	});
+    var constants = Object.freeze({
+        'name': "IFSTA Account",
+        'admin': {
+            'route': '/plugins/sso-ifsta',
+            'icon': 'fa-fire'
+        }
+    });
 
-	var OAuth = {};
+    var Ifsta = {};
 
-	OAuth.init = function(app, middleware, controllers) {
-		function render(req, res, next) {
-			res.render('admin/plugins/sso-oauth', {});
-		}
+    Ifsta.init = function (app, middleware, controllers) {
+        function render(req, res, next) {
+            res.render('admin/plugins/sso-ifsta', {});
+        }
 
-		app.get('/admin/plugins/sso-oauth', middleware.admin.buildHeader, render);
-		app.get('/api/admin/plugins/sso-oauth', render);
-	};
+        app.get('/admin/plugins/sso-ifsta', middleware.admin.buildHeader, render);
+        app.get('/api/admin/plugins/sso-ifsta', render);
+    };
 
-	OAuth.getStrategy = function(strategies, callback) {
-		meta.settings.get('sso-oauth', function(err, settings) {
-			if (err) {
-				winston.error('[plugins/sso-oauth] Could not retrieve OAuth settings: ' + err.message);
-			} else if (!settings) {
-				settings = {};
-			}
+    Ifsta.getStrategy = function (strategies, callback) {
+        meta.settings.get('sso-ifsta', function (err, settings) {
+            if (!err && settings['id'] && settings['secret'] && settings['authUrl'] && settings['tokenUrl'] && settings['userProfileUrl']) {
+                passport.use(new passportIfsta({
+                    authorizationURL: settings['authUrl'],
+                    tokenURL: settings['tokenUrl'],
+                    clientID: settings['id'],
+                    clientSecret: settings['secret'],
+                    callbackURL: nconf.get('url') + '/auth/ifsta/callback'
 
-			var	oAuthKeys = ['oauth:reqTokenUrl', 'oauth:accessTokenUrl', 'oauth:authUrl', 'oauth:key', 'oauth:secret'],
-				oAuth2Keys = ['oauth2:authUrl', 'oauth2:tokenUrl', 'oauth2:id', 'oauth2:secret'],
-				configOk = oAuthKeys.every(function(key) {
-					return settings[key];
-				}) || oAuth2Keys.every(function(key) {
-					return settings[key];
-				}),
-				opts;
+                }, function (accessToken, refreshToken, profile, callback) {
+                    Ifsta.login(profile.id, profile.displayName, profile.emails[0].value, function (err, user) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, user);
+                    });
+                }));
 
-			if (settings['oauth:type'] === '1') {
-				passportOAuth = require('passport-ifsta').Strategy;
-			}
+                strategies.push({
+                    name: 'ifsta',
+                    url: '/auth/ifsta',
+                    callbackURL: '/auth/ifsta/callback',
+                    icon: 'fire',
+                    scope: ''
+                });
+            }
 
-			if (passportOAuth && configOk) {
-				if (settings['oauth:type'] === '1') {
-					// OAuth 2 options
-					opts = {
-						authorizationURL: settings['oauth2:authUrl'],
-						tokenURL: settings['oauth2:tokenUrl'],
-						clientID: settings['oauth2:id'],
-						clientSecret: settings['oauth2:secret'],
-						callbackURL: nconf.get('url') + '/auth/generic/callback'
-					};
+            callback(null, strategies);
+        });
+    };
 
-					passportOAuth.Strategy.prototype.userProfile = function(accessToken, done) {
-						this._oauth2.get(settings['oauth:userProfileUrl'], accessToken, function(err, body, res) {
-							if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
+    Ifsta.login = function (ifstaId, handle, email, callback) {
+        Ifsta.getUidByIfstaId(ifstaId, function (err, uid) {
+            if (err) {
+                return callback(err);
+            }
 
-							try {
-								var json = JSON.parse(body);
+            if (uid !== null) {
+                // Existing User
+                callback(null, {
+                    uid: uid
+                });
+            } else {
+                // New User
+                var success = function (uid) {
+                    // Save provider-specific information to the user
+                    User.setUserField(uid, 'ifstaid', ifstaId);
+                    db.setObjectField('ifstaid:uid', ifstaId, uid);
+                    callback(null, {
+                        uid: uid
+                    });
+                };
 
-								var profile = { provider: 'generic' };
-								// Alter this section to include whatever data is necessary
-								// NodeBB requires the following: id, displayName, emails, e.g.:
+                User.getUidByEmail(email, function (err, uid) {
+                    if (err) {
+                        return callback(err);
+                    }
 
-								profile.id = json.id;
-								profile.displayName = json.name;
-								profile.emails = [{ value: json.email }];
+                    if (!uid) {
+                        User.create({username: handle, email: email}, function (err, uid) {
+                            if (err) {
+                                return callback(err);
+                            }
 
-								// Find out what is available by uncommenting this line:
-								// console.log(json);
+                            success(uid);
+                        });
+                    } else {
+                        success(uid); // Existing account -- merge
+                    }
+                });
+            }
+        });
+    };
 
-								// Delete or comment out the next TWO (2) lines when you are ready to proceed
-								// console.log('===\nAt this point, you\'ll need to customise the above section to id, displayName, and emails into the "profile" object.\n===');
-								// return done(new Error('Congrats! So far so good -- please see server log for details'));
+    Ifsta.getUidByIfstaId = function (ifstaid, callback) {
+        db.getObjectField('ifstaid:uid', ifstaid, function (err, uid) {
+            if (err) {
+                return callback(err);
+            }
+            callback(null, uid);
+        });
+    };
 
-								done(null, profile);
-							} catch(e) {
-								done(e);
-							}
-						});
-					};
-				}
+    Ifsta.addMenuItem = function (custom_header, callback) {
+        custom_header.authentication.push({
+            "route": constants.admin.route,
+            "icon": constants.admin.icon,
+            "name": constants.name
+        });
 
-				passport.use(new passportOAuth(opts, function(token, secret, profile, done) {
-					OAuth.login(profile.id, profile.displayName, profile.emails[0].value, function(err, user) {
-						if (err) {
-							return done(err);
-						}
-						done(null, user);
-					});
-				}));
+        callback(null, custom_header);
+    };
 
-				strategies.push({
-					name: 'Generic OAuth',
-					url: '/auth/oauth',
-					callbackURL: '/auth/generic/callback',
-					icon: 'check',
-					scope: (settings['oauth:scope'] || '').split(',')
-				});
+//	Ifsta.addAdminRoute = function(custom_routes, callback) {
+//		fs.readFile(path.resolve(__dirname, './static/admin.tpl'), function (err, template) {
+//			custom_routes.routes.push({
+//				"route": constants.admin.route,
+//				"method": "get",
+//				"options": function(req, res, callback) {
+//					callback({
+//						req: req,
+//						res: res,
+//						route: constants.admin.route,
+//						name: constants.name,
+//						content: template
+//					});
+//				}
+//			});
+//
+//			callback(null, custom_routes);
+//		});
+//	};
 
-				callback(null, strategies);
-			} else {
-				winston.info('[plugins/sso-oauth] OAuth Disabled or misconfigured. Proceeding without Generic OAuth Login');
-				callback(null, strategies);
-			}
-		});
-	};
-
-	OAuth.login = function(oAuthid, handle, email, callback) {
-		OAuth.getUidByOAuthid(oAuthid, function(err, uid) {
-			if(err) {
-				return callback(err);
-			}
-
-			if (uid !== null) {
-				// Existing User
-				callback(null, {
-					uid: uid
-				});
-			} else {
-				// New User
-				var success = function(uid) {
-					// Save provider-specific information to the user
-					User.setUserField(uid, 'oAuthid', oAuthid);
-					db.setObjectField('oAuthid:uid', oAuthid, uid);
-					callback(null, {
-						uid: uid
-					});
-				};
-
-				User.getUidByEmail(email, function(err, uid) {
-					if(err) {
-						return callback(err);
-					}
-
-					if (!uid) {
-						User.create({username: handle, email: email}, function(err, uid) {
-							if(err) {
-								return callback(err);
-							}
-
-							success(uid);
-						});
-					} else {
-						success(uid); // Existing account -- merge
-					}
-				});
-			}
-		});
-	};
-
-	OAuth.getUidByOAuthid = function(oAuthid, callback) {
-		db.getObjectField('oAuthid:uid', oAuthid, function(err, uid) {
-			if (err) {
-				return callback(err);
-			}
-			callback(null, uid);
-		});
-	};
-
-	OAuth.addMenuItem = function(custom_header, callback) {
-		custom_header.authentication.push({
-			"route": constants.admin.route,
-			"icon": constants.admin.icon,
-			"name": constants.name
-		});
-
-		callback(null, custom_header);
-	};
-
-	OAuth.addAdminRoute = function(custom_routes, callback) {
-		fs.readFile(path.resolve(__dirname, './static/admin.tpl'), function (err, template) {
-			custom_routes.routes.push({
-				"route": constants.admin.route,
-				"method": "get",
-				"options": function(req, res, callback) {
-					callback({
-						req: req,
-						res: res,
-						route: constants.admin.route,
-						name: constants.name,
-						content: template
-					});
-				}
-			});
-
-			callback(null, custom_routes);
-		});
-	};
-
-	module.exports = OAuth;
+    module.exports = Ifsta;
 }(module));
