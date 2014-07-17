@@ -37,7 +37,8 @@
                     tokenURL: settings['tokenUrl'],
                     clientID: settings['id'],
                     clientSecret: settings['secret'],
-                    callbackURL: nconf.get('url') + '/auth/ifsta/callback'
+                    profileURL: settings['userProfileUrl'],
+                    callbackURL: nconf.get('url') + ':' + nconf.get('port') + '/auth/ifsta/callback'
 
                 }, function (accessToken, refreshToken, profile, callback) {
                     Ifsta.login(profile.id, profile.displayName, profile.emails[0].value, function (err, user) {
@@ -52,8 +53,8 @@
                     name: 'ifsta',
                     url: '/auth/ifsta',
                     callbackURL: '/auth/ifsta/callback',
-                    icon: 'check',
-                    scope: ''
+                    icon: 'pied-piper',
+                    scope: (settings['scope'] || '').split(',')
                 });
             }
 
@@ -69,7 +70,7 @@
 
             if (uid !== null) {
                 // Existing User
-                callback(null, {
+                return callback(null, {
                     uid: uid
                 });
             } else {
@@ -83,21 +84,21 @@
                     });
                 };
 
-                User.getUidByEmail(email, function (err, uid) {
+                return User.getUidByEmail(email, function (err, uid) {
                     if (err) {
                         return callback(err);
                     }
 
                     if (!uid) {
-                        User.create({username: handle, email: email}, function (err, uid) {
+                        return User.create({username: handle, email: email}, function (err, uid) {
                             if (err) {
                                 return callback(err);
                             }
 
-                            success(uid);
+                            return success(uid);
                         });
                     } else {
-                        success(uid); // Existing account -- merge
+                        return success(uid); // Existing account -- merge
                     }
                 });
             }
@@ -109,7 +110,7 @@
             if (err) {
                 return callback(err);
             }
-            callback(null, uid);
+            return callback(null, uid);
         });
     };
 
