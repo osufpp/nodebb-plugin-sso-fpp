@@ -17,15 +17,9 @@
     "ifsta"
   ],
   "author": {
-    "name": "Julian Lam",
-    "email": "julian@nodebb.org"
-  },
-  "contributors": [
-    {
       "name": "Aaron Bean",
       "email": "aaron.bean@beardon.com"
-    }
-  ],
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta/issues"
