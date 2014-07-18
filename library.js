@@ -53,7 +53,7 @@
                     name: 'ifsta',
                     url: '/auth/ifsta',
                     callbackURL: '/auth/ifsta/callback',
-                    icon: 'pied-piper',
+                    icon: 'fa-fire',
                     scope: (settings['scope'] || '').split(',')
                 });
             }
