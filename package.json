@@ -18,7 +18,8 @@
   ],
   "author": {
       "name": "Aaron Bean",
-      "email": "aaron.bean@beardon.com"
+      "email": "aaron.bean@beardon.com",
+      "url": "https://github.com/aaronbean"
   },
   "license": "MIT",
   "bugs": {
