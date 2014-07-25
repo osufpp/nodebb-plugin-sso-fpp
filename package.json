@@ -17,9 +17,9 @@
     "ifsta"
   ],
   "author": {
-      "name": "Aaron Bean",
-      "email": "aaron.bean@beardon.com",
-      "url": "https://github.com/aaronbean"
+    "name": "Aaron Bean",
+    "email": "aaron.bean@beardon.com",
+    "url": "https://github.com/aaronbean"
   },
   "license": "MIT",
   "bugs": {
@@ -28,6 +28,6 @@
   "readme": "",
   "readmeFilename": "README.md",
   "dependencies": {
-    "passport-ifsta": "git+ssh://git@github.com/beardon/passport-ifsta.git"
+    "passport-ifsta": "^0.1.1"
   }
 }
