@@ -38,7 +38,7 @@
                     clientID: settings['id'],
                     clientSecret: settings['secret'],
                     profileURL: settings['userProfileUrl'],
-                    callbackURL: nconf.get('url') + ':' + nconf.get('port') + '/auth/ifsta/callback'
+                    callbackURL: nconf.get('url') + '/auth/ifsta/callback'
 
                 }, function (accessToken, refreshToken, profile, callback) {
                     Ifsta.login(profile.id, profile.displayName, profile.emails[0].value, function (err, user) {
