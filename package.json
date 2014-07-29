@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-sso-ifsta",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "NodeBB IFSTA OAuth2 SSO",
   "main": "library.js",
   "repository": {
