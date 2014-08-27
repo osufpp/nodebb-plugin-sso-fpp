@@ -41,10 +41,11 @@
 			oauth2: {
 				authorizationURL: nconf.get('sso-ifsta:authorization_url'),
 				tokenURL: nconf.get('sso-ifsta:token_url'),
+                profileURL: nconf.get('sso-ifsta:profile_url'),
 				clientID: nconf.get('sso-ifsta:client_id'),
 				clientSecret: nconf.get('sso-ifsta:client_secret')
 			},
-			userRoute: nconf.get('sso-ifsta:user_route')	// This is the address to your app's "user profile" API endpoint (expects JSON)
+			userRoute: nconf.get('sso-ifsta:profile_url')	// This is the address to your app's "user profile" API endpoint (expects JSON)
 		}),
 		configOk = false,
 		OAuth = {}, passportOAuth, opts;
