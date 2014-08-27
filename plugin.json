@@ -1,14 +1,13 @@
 {
 	"id": "nodebb-plugin-sso-ifsta",
 	"name": "NodeBB IFSTA Account SSO",
-	"description": "NodeBB Plugin that allows users to login/register via their IFSTA Account",
+	"description": "NodeBB Plugin that allows users to login/register via their IFSTA Account.",
 	"url": "https://github.com/beardon/nodebb-plugin-sso-ifsta",
 	"library": "./library.js",
 	"hooks": [
-		{ "hook": "action:app.load", "method": "init" },
-		{ "hook": "filter:auth.init", "method": "getStrategy" },
-		{ "hook": "filter:admin.header.build", "method": "addMenuItem" }
+		{ "hook": "filter:user.delete", "method": "deleteUserData" },
+		{ "hook": "filter:auth.init", "method": "getStrategy" }
 	],
 	"templates": "./templates",
-	"minver": "0.4.3"
+	"minver": "0.5.0"
 }
