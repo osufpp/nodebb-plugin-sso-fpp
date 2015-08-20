@@ -1,8 +1,8 @@
 {
-	"id": "nodebb-plugin-sso-ifsta",
-	"name": "NodeBB IFSTA Account SSO",
-	"description": "NodeBB Plugin that allows users to login/register via their IFSTA Account.",
-	"url": "https://github.com/beardon/nodebb-plugin-sso-ifsta",
+	"id": "nodebb-plugin-sso-fpp",
+	"name": "NodeBB FPP Account SSO",
+	"description": "NodeBB Plugin that allows users to login/register via their FPP Account.",
+	"url": "https://github.com/osufpp/nodebb-plugin-sso-fpp",
 	"library": "./library.js",
 	"hooks": [
 		{ "hook": "filter:user.delete", "method": "deleteUserData" },

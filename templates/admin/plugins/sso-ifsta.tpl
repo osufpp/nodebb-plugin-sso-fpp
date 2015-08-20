@@ -1,10 +1,10 @@
-<h1><i class="fa fa-fire"></i> IFSTA Account Authentication</h1>
+<h1><i class="fa fa-fire"></i> FPP Account Authentication</h1>
 <hr />
 
-<form class="sso-ifsta-settings">
+<form class="sso-fpp-settings">
 	<div class="alert alert-warning">
 		<p>
-			Please refer to IFSTA Account client settings for appropriate values. All fields are mandatory.
+			Please refer to FPP Account client settings for appropriate values. All fields are mandatory.
 		</p>
 		<br />
 		<div class="form-group">
@@ -30,10 +30,10 @@
 
 <script>
 	require(['settings'], function(Settings) {
-		Settings.load('sso-ifsta', $('.sso-ifsta-settings'));
+		Settings.load('sso-fpp', $('.sso-fpp-settings'));
 
 		$('#save').on('click', function() {
-			Settings.save('sso-ifsta', $('.sso-ifsta-settings'));
+			Settings.save('sso-fpp', $('.sso-fpp-settings'));
 		});
 	});
 </script>

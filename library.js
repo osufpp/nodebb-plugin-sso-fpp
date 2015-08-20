@@ -29,23 +29,16 @@
 
 		constants = Object.freeze({
 			type: 'oauth2',	// Either 'oauth' or 'oauth2'
-			name: 'ifsta',	// Something unique to your OAuth provider in lowercase, like "github", or "nodebb"
+			name: 'fpp',	// Something unique to your OAuth provider in lowercase, like "github", or "nodebb"
             icon: 'fa-fire',
-			oauth: {
-				requestTokenURL: '',
-				accessTokenURL: '',
-				userAuthorizationURL: '',
-				consumerKey: '',
-				consumerSecret: ''
-			},
 			oauth2: {
-				authorizationURL: nconf.get('sso-ifsta:authorization_url'),
-				tokenURL: nconf.get('sso-ifsta:token_url'),
-                profileURL: nconf.get('sso-ifsta:profile_url'),
-				clientID: nconf.get('sso-ifsta:client_id'),
-				clientSecret: nconf.get('sso-ifsta:client_secret')
+				authorizationURL: nconf.get('sso-fpp:authorization_url'),
+				tokenURL: nconf.get('sso-fpp:token_url'),
+                profileURL: nconf.get('sso-fpp:profile_url'),
+				clientID: nconf.get('sso-fpp:client_id'),
+				clientSecret: nconf.get('sso-fpp:client_secret')
 			},
-			userRoute: nconf.get('sso-ifsta:profile_url')	// This is the address to your app's "user profile" API endpoint (expects JSON)
+			userRoute: nconf.get('sso-fpp:profile_url')	// This is the address to your app's "user profile" API endpoint (expects JSON)
 		}),
 		configOk = false,
 		OAuth = {}, passportOAuth, opts;
@@ -62,51 +55,10 @@
 
 	OAuth.getStrategy = function(strategies, callback) {
 		if (configOk) {
-			passportOAuth = require('passport-ifsta').Strategy;
-
-			if (constants.type === 'oauth') {
-				// OAuth options
-				opts = constants.oauth;
-				opts.callbackURL = nconf.get('url') + '/auth/' + constants.name + '/callback';
-
-				passportOAuth.Strategy.prototype.userProfile = function(token, secret, params, done) {
-					this._oauth.get(constants.userRoute, token, secret, function(err, body, res) {
-						if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
-
-						try {
-							var json = JSON.parse(body);
-							OAuth.parseUserReturn(json, function(err, profile) {
-								if (err) return done(err);
-								profile.provider = constants.name;
-								done(null, profile);
-							});
-						} catch(e) {
-							done(e);
-						}
-					});
-				};
-			} else if (constants.type === 'oauth2') {
-				// OAuth 2 options
-				opts = constants.oauth2;
-				opts.callbackURL = nconf.get('url') + '/auth/' + constants.name + '/callback';
-
-//				passportOAuth.Strategy.prototype.userProfile = function(accessToken, done) {
-//					this._oauth2.get(constants.userRoute, accessToken, function(err, body, res) {
-//						if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
-//
-//						try {
-//							var json = JSON.parse(body);
-//							OAuth.parseUserReturn(json, function(err, profile) {
-//								if (err) return done(err);
-//								profile.provider = constants.name;
-//								done(null, profile);
-//							});
-//						} catch(e) {
-//							done(e);
-//						}
-//					});
-//				};
-			}
+			passportOAuth = require('passport-fpp').Strategy;
+			
+			opts = constants.oauth2;
+			opts.callbackURL = nconf.get('url') + '/auth/' + constants.name + '/callback';
 
 			passport.use(constants.name, new passportOAuth(opts, function(token, secret, profile, done) {
 				OAuth.login({
@@ -178,17 +130,19 @@
 					User.setUserField(uid, constants.name + 'Id', payload.oAuthid);
 					db.setObjectField(constants.name + 'Id:uid', payload.oAuthid, uid);
 
-					if (payload.isAdmin) {
-						Groups.join('administrators', uid, function(err) {
+					Groups.join('staff', uid, function(err) {
+						if (payload.isAdmin) {
+							Groups.join('administrators', uid, function(err) {
+								callback(null, {
+									uid: uid
+								});
+							});
+						} else {
 							callback(null, {
 								uid: uid
 							});
-						});
-					} else {
-						callback(null, {
-							uid: uid
-						});
-					}
+						}
+					});
 				};
 
 				User.getUidByEmail(payload.email, function(err, uid) {

@@ -1,11 +1,11 @@
 {
-  "name": "nodebb-plugin-sso-ifsta",
+  "name": "nodebb-plugin-sso-fpp",
   "version": "0.2.4",
-  "description": "NodeBB IFSTA OAuth2 SSO",
+  "description": "NodeBB FPP OAuth2 SSO",
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta"
+    "url": "https://github.com/osufpp/nodebb-plugin-sso-fpp"
   },
   "keywords": [
     "nodebb",
@@ -16,7 +16,7 @@
     "single sign on",
     "login",
     "registration",
-    "ifsta"
+    "fpp"
   ],
   "author": {
     "name": "Aaron Bean",
@@ -25,12 +25,12 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/beardon/nodebb-plugin-sso-ifsta/issues"
+    "url": "https://github.com/osufpp/nodebb-plugin-sso-fpp/issues"
   },
   "readme": "",
   "readmeFilename": "README.md",
   "dependencies": {
-    "passport-ifsta": "^0.1.1"
+    "passport-fpp": "^0.1.2"
   },
   "nbbpm": {
     "compatibility": "^0.5.0",
